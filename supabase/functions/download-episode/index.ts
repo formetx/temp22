@@ -8,24 +8,38 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 }
 
-// Fonction pour simuler le téléchargement d'un épisode
-async function simulateDownloadEpisode(url: string): Promise<Response> {
+// Fonction pour générer un fichier audio fictif
+async function generateFakeAudio(title: string): Promise<Response> {
   try {
-    console.log(`Simulation de téléchargement depuis: ${url}`);
+    console.log(`Génération d'un fichier audio fictif pour: ${title}`);
     
     // Créer un contenu audio fictif (quelques secondes de silence)
-    const audioContent = new Uint8Array(10000); // Un petit fichier vide
+    const audioLength = 300000; // Environ 5 minutes de "silence"
+    const audioContent = new Uint8Array(audioLength);
+    
+    // Ajout d'un message texte dans le fichier pour indiquer qu'il s'agit d'une simulation
+    const textEncoder = new TextEncoder();
+    const message = `Ceci est une simulation de fichier audio pour: ${title}`;
+    const messageBytes = textEncoder.encode(message);
+    
+    // Copier le message au début du tableau
+    for (let i = 0; i < messageBytes.length && i < audioContent.length; i++) {
+      audioContent[i] = messageBytes[i];
+    }
+    
+    // Nom de fichier pour le téléchargement
+    const fileName = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.mp3`;
     
     // Renvoyer le contenu simulé
     return new Response(audioContent, {
       headers: {
         ...corsHeaders,
         'Content-Type': 'audio/mpeg',
-        'Content-Disposition': 'attachment',
+        'Content-Disposition': `attachment; filename="${fileName}"`,
       },
     });
   } catch (error) {
-    console.error('Erreur lors de la simulation du téléchargement:', error);
+    console.error('Erreur lors de la génération du fichier audio fictif:', error);
     return new Response(
       JSON.stringify({ error: `Erreur interne: ${error.message}` }),
       { 
@@ -63,9 +77,10 @@ serve(async (req) => {
       );
     }
 
-    // Récupérer l'URL audio depuis les paramètres de recherche
+    // Récupérer les paramètres de la requête
     const url = new URL(req.url);
     const audioUrl = url.searchParams.get('url');
+    const title = url.searchParams.get('title') || 'episode';
 
     if (!audioUrl) {
       return new Response(
@@ -80,8 +95,8 @@ serve(async (req) => {
       );
     }
 
-    // Simuler le téléchargement d'un fichier audio
-    return await simulateDownloadEpisode(audioUrl);
+    // Générer un fichier audio fictif avec le titre fourni
+    return await generateFakeAudio(title);
   } catch (error) {
     console.error('Erreur lors du traitement de la requête:', error);
     return new Response(

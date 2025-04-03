@@ -85,8 +85,8 @@ export const downloadEpisode = async (
       return true;
     }
 
-    // Construction de l'URL de la fonction edge Supabase avec l'URL audio en paramètre
-    const edgeFunctionUrl = `${supabaseUrl}/functions/v1/download-episode?url=${encodeURIComponent(episode.audioUrl)}`;
+    // Construction de l'URL de la fonction edge Supabase avec l'URL audio et le titre en paramètres
+    const edgeFunctionUrl = `${supabaseUrl}/functions/v1/download-episode?url=${encodeURIComponent(episode.audioUrl)}&title=${encodeURIComponent(episode.title)}`;
     
     // Préparation de la requête avec le token d'authentification
     const response = await fetch(edgeFunctionUrl, {
