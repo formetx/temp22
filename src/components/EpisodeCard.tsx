@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import { Episode } from '@/types';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { Calendar, Clock, Image } from 'lucide-react';
-import DownloadButton from './DownloadButton';
+import { Calendar, Clock } from 'lucide-react';
+import DownloadButton from './download/DownloadButton';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 interface EpisodeCardProps {
