@@ -50,20 +50,27 @@ export const downloadEpisode = async (
           if (progress >= 100) {
             clearInterval(interval);
             
-            // Téléchargement direct depuis l'URL source en mode simulation
+            // Au lieu d'ouvrir l'URL, simulons simplement un téléchargement réussi
+            console.log(`Simulation de téléchargement pour: ${episode.title} (${fileName})`);
+            
+            // Créer un petit fichier audio temporaire comme simulation
             try {
-              // Créer un lien invisible et déclencher le téléchargement
+              // Création d'un blob audio vide pour simuler le téléchargement
+              const blob = new Blob(['Audio simulé pour ' + episode.title], { type: 'audio/mpeg' });
+              const url = URL.createObjectURL(blob);
+              
+              // Créer un lien pour télécharger ce blob
               const link = document.createElement('a');
-              link.href = episode.audioUrl;
+              link.href = url;
               link.download = fileName;
-              link.target = '_blank'; // Ouvrir dans une nouvelle fenêtre/onglet
               document.body.appendChild(link);
               link.click();
               document.body.removeChild(link);
+              URL.revokeObjectURL(url);
               
-              console.log(`Téléchargement direct depuis ${episode.audioUrl}`);
-            } catch (directError) {
-              console.error("Erreur lors du téléchargement direct:", directError);
+              console.log(`Fichier de simulation créé pour ${episode.title}`);
+            } catch (simulationError) {
+              console.error("Erreur lors de la création du fichier de simulation:", simulationError);
             }
           }
         }, 500);

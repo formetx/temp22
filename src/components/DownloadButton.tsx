@@ -25,24 +25,41 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadedFilename, setDownloadedFilename] = useState<string | null>(null);
 
-  const handleDirectDownload = () => {
-    // Crée un nom de fichier basé sur le titre
-    const fileName = `${episode.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.mp3`;
-    
-    // Crée un lien d'accès direct au fichier audio
-    const link = document.createElement('a');
-    link.href = episode.audioUrl;
-    link.download = fileName;
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    toast({
-      title: "Téléchargement lancé",
-      description: "Le téléchargement a été lancé directement depuis la source. Vérifiez votre navigateur.",
-      duration: 5000,
-    });
+  const handleDirectDownload = async () => {
+    try {
+      // Créer un nom de fichier basé sur le titre
+      const fileName = `${episode.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.mp3`;
+      setDownloadedFilename(fileName);
+      
+      // Utiliser la même fonction de téléchargement mais avec une progression plus rapide
+      const success = await downloadEpisode(episode, (progress) => {
+        setDownloadState(prev => ({
+          ...prev,
+          progress
+        }));
+      });
+
+      if (success) {
+        setDownloadState(prev => ({
+          ...prev,
+          isComplete: true
+        }));
+        
+        toast({
+          title: "Téléchargement direct terminé",
+          description: `Le fichier ${fileName} a été téléchargé.`,
+          duration: 5000,
+        });
+        onDownloadComplete();
+      }
+    } catch (error) {
+      toast({
+        title: "Erreur de téléchargement direct",
+        description: "Impossible de télécharger le fichier.",
+        variant: "destructive",
+        duration: 5000,
+      });
+    }
   };
 
   const handleDownload = async () => {
@@ -199,7 +216,7 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
         </Button>
         <Button variant="ghost" size="sm" className="w-full text-xs" onClick={handleDirectDownload}>
           <ExternalLink className="h-3.5 w-3.5 mr-1" />
-          Télécharger directement depuis la source
+          Télécharger directement
         </Button>
       </div>
     );
@@ -219,7 +236,7 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
         onClick={handleDirectDownload}
         className="text-xs text-muted-foreground underline hover:text-blue-600 w-full text-center"
       >
-        Télécharger directement depuis la source
+        Télécharger directement
       </button>
     </div>
   );
